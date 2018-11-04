@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Implementation-Title: Gradle Jar Money Transfer
+Implementation-Version: 0.1
+Main-Class: entrypoint.MoneyTransferFactory
+
