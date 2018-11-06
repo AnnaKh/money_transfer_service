@@ -1,4 +1,4 @@
 httpserver:
   port: 10001
 store:
-  path: "money_transfer_db"
+  path: "money_transfer_db_revolut"

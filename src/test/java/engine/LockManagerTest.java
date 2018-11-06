@@ -2,18 +2,15 @@ package engine;
 
 import httpserver.OperationResult;
 import org.junit.Test;
-
 import java.util.concurrent.Callable;
-
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class LockManagerTest {
 
-    LockManager lockManager = new LockManager();
-    Callable<OperationResult> callable = mock(Callable.class);
+    private LockManager lockManager = new LockManager();
+    private Callable<OperationResult> callable = mock(Callable.class);
 
     @Test
     public void executeOnTwoLocks() throws Exception {

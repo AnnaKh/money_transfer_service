@@ -25,13 +25,13 @@ public class AccountManagerTest {
     public void testTransferMoney() {
         String id = "1234";
         Account account = new Account();
-        account.setName("Petrov");
+        account.setName("Alice");
         account.setId(id);
         account.setBalance(new BigDecimal(100));
 
         String id1 = "5678";
         Account account1 = new Account();
-        account1.setName("Sidorov");
+        account1.setName("Bob");
         account1.setId(id);
         account1.setBalance(new BigDecimal(500));
 
@@ -42,7 +42,7 @@ public class AccountManagerTest {
                 .transferMoney(id, id1, new BigDecimal(50));
 
         try {
-            Assert.assertEquals(operationResult.getText(), "operation completed");
+            Assert.assertFalse(operationResult.isError());
             Assert.assertEquals(account1.getBalance().intValue(), 550);
             Assert.assertEquals(account.getBalance().intValue(), 50);
             verify(store).get(id);
@@ -60,7 +60,7 @@ public class AccountManagerTest {
 
         String id = "1234";
         Account account = new Account();
-        account.setName("Petrov");
+        account.setName("Bob");
         account.setId(id);
 
         when(store.get(id)).thenReturn(account);
@@ -79,7 +79,7 @@ public class AccountManagerTest {
     public void testChangeBalanceToPlus() {
         String id = "1234";
         Account account = new Account();
-        account.setName("Hammes");
+        account.setName("Bob");
         account.setId(id);
         account.setBalance(BigDecimal.ZERO);
 
@@ -87,8 +87,8 @@ public class AccountManagerTest {
         OperationResult operationResult = accountManager.changeBalance(id, BigDecimal.TEN);
 
         try {
-            Assert.assertEquals(operationResult.getText(), "operation completed");
-            Assert.assertEquals(10, account.getBalance().intValue());
+            Assert.assertFalse(operationResult.isError());
+            Assert.assertEquals(0, account.getBalance().compareTo(new BigDecimal(10)));
         } catch (Exception e) {
             Assert.fail();
         }
@@ -102,7 +102,7 @@ public class AccountManagerTest {
     public void testChangeBalanceToMinusFail() {
         String id = "1234";
         Account account = new Account();
-        account.setName("Petrov");
+        account.setName("Bob");
         account.setId(id);
         account.setBalance(BigDecimal.ZERO);
 
@@ -110,7 +110,7 @@ public class AccountManagerTest {
         OperationResult operationResult =  accountManager.changeBalance(id, new BigDecimal(-10));
 
         try {
-            Assert.assertEquals(operationResult.getText(), "Can't withdraw to negative balance");
+            Assert.assertTrue(operationResult.isError());
             Assert.assertEquals(0, account.getBalance().intValue());
         } catch (Exception e) {
             Assert.fail();
@@ -142,7 +142,7 @@ public class AccountManagerTest {
         when(store.get(accountId)).thenReturn(account);
         OperationResult operationResult = accountManager.deleteAccount(accountId);
         try {
-            Assert.assertEquals(operationResult.getText(), "operation completed");
+            Assert.assertFalse(operationResult.isError());
             verify(store).get(accountId);
             verify(store).delete(accountId);
             verifyNoMoreInteractions(store);
@@ -161,7 +161,7 @@ public class AccountManagerTest {
         when(store.get(accountId)).thenReturn(account);
         OperationResult operationResult =  accountManager.deleteAccount(accountId);
         try {
-            Assert.assertEquals(operationResult.getText(), "Account balance is not 0");
+            Assert.assertTrue(operationResult.isError());
             verify(store).get(accountId);
             verifyNoMoreInteractions(store);
         } catch (Exception e) {

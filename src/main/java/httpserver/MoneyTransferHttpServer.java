@@ -17,14 +17,11 @@ import static io.javalin.ApiBuilder.*;
  */
 public class MoneyTransferHttpServer {
 
-
     private static final int IDLE_TIMEOUT = 60_000;
     private static final Logger LOG = LoggerFactory.getLogger(MoneyTransferHttpServer.class);
 
-
     private final Javalin app;
     private final MoneyTransferServerRoutes moneyTransferServerRoutes;
-
 
     public MoneyTransferHttpServer(MoneyTransferServerRoutes moneyTransferServerRoutes,
                                    HttpSettings httpSettings,
@@ -58,7 +55,5 @@ public class MoneyTransferHttpServer {
                 })
         );
     }
-
-
 
 }

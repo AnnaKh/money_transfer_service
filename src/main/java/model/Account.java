@@ -8,7 +8,6 @@ public class Account {
     private String name;
     private BigDecimal balance;
 
-
     public String getName() {
         return name;
     }
@@ -32,4 +31,5 @@ public class Account {
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
+
 }

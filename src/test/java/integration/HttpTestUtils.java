@@ -8,11 +8,16 @@ import model.AccountSerializer;
 import static org.junit.Assert.assertEquals;
 
 
-public class TestUtils {
+public class HttpTestUtils {
+
+    static {
+        Unirest.setTimeouts(50000, 50000);
+    }
 
     public static Account createAccount(Account account, String urlMain, AccountSerializer accountSerializer) throws Exception {
         String url = urlMain + "add";
-        HttpResponse<String> response = Unirest.get(url)
+        HttpResponse<String> response = Unirest
+                .get(url)
                 .queryString("account", accountSerializer.serialize(account))
                 .asObject(String.class);
         assertEquals(200, response.getStatus());

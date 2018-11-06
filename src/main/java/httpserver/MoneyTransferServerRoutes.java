@@ -21,6 +21,11 @@ public class MoneyTransferServerRoutes {
 
     private static final Logger LOG = LoggerFactory.getLogger(MoneyTransferServerRoutes.class);
 
+    private static final int HTTP_CODE_SUCCESS = 200;
+    private static final int HTTP_CODE_BAD_REQUEST = 400;
+    private static final int HTTP_CODE_UNPROCESSABLE_ENTITY = 422;
+    private static final int HTTP_CODE_SERVER_ERROR = 500;
+
     private final AccountSerializer accountSerializer;
     private final AccountManager accountManager;
     private final ExecutorService executorService;
@@ -37,8 +42,7 @@ public class MoneyTransferServerRoutes {
     void get(Context ctx) {
         String accountId = getIdFromRequest(ctx.request());
         if (accountId == null) {
-            LOG.info("Invalid get account request");
-            sendValidationException(ctx.response());
+            sendValidationException(ctx, "Invalid get account request");
         } else {
             submitAction(ctx, () -> accountManager.getAccount(accountId));
         }
@@ -47,8 +51,7 @@ public class MoneyTransferServerRoutes {
     void add(Context ctx) {
         String accountsSer = ctx.request().getParameter("account");
         if (accountsSer == null) {
-            LOG.info("Invalid add account request");
-            sendValidationException(ctx.response());
+            sendValidationException(ctx, "Invalid add account request");
         } else {
             LOG.info("Add account request {}", accountsSer);
             Account account = accountSerializer.deserialize(accountsSer);
@@ -61,8 +64,7 @@ public class MoneyTransferServerRoutes {
         String accountId = getIdFromRequest(request);
         BigDecimal sum = getAmountFromRequest(request);
         if (accountId == null || sum == null) {
-            LOG.info("Invalid change balance request");
-            sendValidationException(ctx.response());
+            sendValidationException(ctx, "Invalid change balance request");
         } else {
             LOG.info("Change balance request id {}  sum {}", accountId, sum);
             submitAction(ctx, () -> accountManager.changeBalance(accountId, sum));
@@ -75,8 +77,7 @@ public class MoneyTransferServerRoutes {
         String accountTo = request.getParameter("to");
         BigDecimal sumToTransfer = getAmountFromRequest(request);
         if (accountFrom == null || accountTo == null || sumToTransfer == null) {
-            LOG.info("Invalid transfer money request");
-            sendValidationException(ctx.response());
+            sendValidationException(ctx, "Invalid transfer money request");
         } else {
             LOG.info("Transfer money request from {} to {} sum {}", accountFrom, accountTo, sumToTransfer);
             submitAction(ctx, () -> accountManager.transferMoney(accountFrom, accountTo,
@@ -88,8 +89,7 @@ public class MoneyTransferServerRoutes {
         HttpServletRequest request = ctx.request();
         String accountId = getIdFromRequest(request);
         if (accountId == null) {
-            LOG.info("Invalid delete account request");
-            sendValidationException(ctx.response());
+            sendValidationException(ctx, "Invalid delete account request");
         } else {
             LOG.info("Delete account request : account id {}", accountId);
             submitAction(ctx, () -> accountManager.deleteAccount(accountId));
@@ -120,23 +120,25 @@ public class MoneyTransferServerRoutes {
         executorService.submit(() -> {
             try {
                 OperationResult result = resultCallable.call();
-                context.response().setStatus(result.isError() ? 422 : 200);
+                context.response().setStatus(result.isError() ? HTTP_CODE_UNPROCESSABLE_ENTITY : HTTP_CODE_SUCCESS);
                 future.complete(result.getText());
             } catch (Throwable e) {
                 LOG.error(e.getMessage(), e);
-                context.response().setStatus(500);
+                context.response().setStatus(HTTP_CODE_SERVER_ERROR);
                 future.completeExceptionally(e);
             }
         });
-
     }
 
     private String getIdFromRequest(HttpServletRequest request) {
         return request.getParameter("id");
     }
 
-    private void sendValidationException(HttpServletResponse response) {
-        response.setStatus(400);
+    private void sendValidationException(Context context, String errorMessage) {
+        HttpServletResponse response = context.response();
+        response.setStatus(HTTP_CODE_BAD_REQUEST);
+        context.result(errorMessage);
+        LOG.info(errorMessage);
     }
 
 }

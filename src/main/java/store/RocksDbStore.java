@@ -31,6 +31,11 @@ public class RocksDbStore implements Store {
         List<ColumnFamilyHandle> columns = new ArrayList<>();
         db = startDb(familyList, columns, storeSettings.path());
         initColumnHandlesMap(familyList, columns);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            for ( ColumnFamilyHandle columnFamilyHandle : handles.values()) {
+                columnFamilyHandle.close();
+            }
+        }));
     }
 
     @Override
@@ -44,7 +49,7 @@ public class RocksDbStore implements Store {
 
         } catch (RocksDBException e) {
             LOG.error(e.getMessage(), e);
-            throw new RuntimeException("can't insert data into rocksdb");
+            throw new RuntimeException("Can not insert data into rocksdb");
         }
     }
 
@@ -60,7 +65,7 @@ public class RocksDbStore implements Store {
 
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
-            throw new RuntimeException("Can't get data from RocksDb");
+            throw new RuntimeException("Can not get data from RocksDb");
         }
     }
 
@@ -70,10 +75,9 @@ public class RocksDbStore implements Store {
             db.delete(accountId.getBytes());
         } catch (RocksDBException e) {
             LOG.error(e.getMessage(), e);
-            throw new RuntimeException("Can't delete data in RocksDb");
+            throw new RuntimeException("Can not delete data in RocksDb");
         }
     }
-
 
     private ColumnFamilyHandle getHandle(String family) {
         String name = family;
@@ -85,7 +89,7 @@ public class RocksDbStore implements Store {
                 handle = db.createColumnFamily(descriptor);
             } catch (Exception ex) {
                 LOG.error(ex.getMessage(), ex);
-                throw new RuntimeException("Can't launch RocksDb");
+                throw new RuntimeException("Can not launch RocksDb");
             }
             return handle;
         });
@@ -107,7 +111,7 @@ public class RocksDbStore implements Store {
 
         } catch (RocksDBException e) {
             LOG.error(e.getMessage(), e);
-            throw new RuntimeException("Can't launch RocksDb");
+            throw new RuntimeException("Can not launch RocksDb");
         }
         return familyList;
     }
@@ -125,7 +129,8 @@ public class RocksDbStore implements Store {
                 db.close();
             }));
         } catch (RocksDBException e) {
-            throw new RuntimeException("Can't launch RocksDb", e);
+
+            throw new RuntimeException("Can not launch RocksDb", e);
         }
         return db;
 
@@ -135,7 +140,6 @@ public class RocksDbStore implements Store {
         for (int i = 0; i < familyList.size(); i++) {
             String columnFamilyName = new String(familyList.get(i).columnFamilyName());
             handles.put(columnFamilyName, columns.get(i));
-            i++;
         }
     }
 

@@ -4,9 +4,7 @@ import com.google.gson.Gson;
 
 public class AccountSerializer {
 
-
     private final Gson gson = new Gson();
-
 
     public Account deserialize(String json){
         return gson.fromJson(json, Account.class);

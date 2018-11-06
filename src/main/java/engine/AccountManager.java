@@ -14,7 +14,7 @@ import java.util.UUID;
 
 
 /**
- * Implementation of all main methods (add, get, changeBalance, transferMoney, delete)
+ * Implementation of API methods (add, get, changeBalance, transferMoney, delete)
  */
 public class AccountManager {
 
@@ -67,7 +67,6 @@ public class AccountManager {
             return OperationResult.success(accountSerializer.serialize(account));
         });
     }
-
 
     public OperationResult changeBalance(String accountId, BigDecimal sum) {
         return lockManager.executeOnOneLock(accountId, () -> {

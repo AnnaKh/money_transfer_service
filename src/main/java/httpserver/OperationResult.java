@@ -32,4 +32,5 @@ public class OperationResult {
     public String getText() {
         return text;
     }
+
 }

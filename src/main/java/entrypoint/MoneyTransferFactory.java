@@ -15,7 +15,6 @@ public class MoneyTransferFactory {
 
     private MoneyTransferHttpServer moneyTransferHttpServer;
 
-
     public void launch(String configName) {
         ConfigKeeper configKeeper = new ConfigKeeper(configName);
         AccountSerializer accountSerializer = new AccountSerializer();
@@ -26,13 +25,13 @@ public class MoneyTransferFactory {
         moneyTransferHttpServer = new MoneyTransferHttpServer(moneyTransferServerRoutes, configKeeper.getHttpSettings(), numOfThreads);
         moneyTransferHttpServer.start();
     }
+
     public void stop() {
         if (moneyTransferHttpServer == null){
             return;
         }
         moneyTransferHttpServer.stop();
     }
-
 
     private static int getMaxThreads() {
         return Runtime.getRuntime().availableProcessors();
